@@ -1,0 +1,4 @@
+EMPTY_WORD_FILENAME = "Files/template.docx"
+FINAL_WORD_FILENAME = "Files/150825.docx"
+GMCAP_FILENAME = "Files/150825.cap"
+TEMP_FILENAME = "Files/Temp"

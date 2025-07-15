@@ -1,0 +1,174 @@
+from repositories.RunnerRepository import RunnerRepository
+from repositories.SettingRepository import SettingRepository
+from models.Runner import Runner
+from config import config
+
+runner_repository = RunnerRepository()
+setting_repository = SettingRepository()
+
+def get_offset():
+    offset_a = setting_repository.get_offset_a()
+    offset_b = setting_repository.get_offset_b()
+    offset_c = setting_repository.get_offset_c()
+    return (offset_a, offset_b, offset_c)
+
+def read_file(filename):
+    runner_map = runner_repository.get_runner_map()
+    runners_to_insert = []
+    offsets = get_offset()
+    with open(filename, 'rb') as file:
+        eat_until(file, [b'\x00']*100)
+        eat_zero(file)
+        number = read_int_with_fix_length(file, 2)
+        if number > 0:
+            setting_repository.set_runner_number(number)
+        for _ in range (number):
+            read_runner(file, runner_map, runners_to_insert, offsets)
+    runner_repository.insert_runners(runners_to_insert)
+
+def read_runner(file, runner_map, runners_to_insert, offsets):
+    last_name = read_with_length(file).upper()
+    first_name = read_with_length(file).title()
+    sex = get_sex(eat_int_n(file, 1))
+    file.read(1)
+    bib_number = read_int_with_fix_length(file, 2)
+    file.read(2)
+    category = get_category(eat_int_n(file, 1))
+    file.read(1)
+    read_with_length(file)
+    read_int_with_fix_length(file, 2)
+    skip(file, 4)
+    a = read_int_with_fix_length(file, 2)
+    b = read_int_with_fix_length(file, 2)
+    c = read_int_with_fix_length(file, 2)
+    runner_time = find_hour(a, b, c, offsets)
+    file.read(66)
+    skip(file, 2)
+    file.read(8)
+    skip(file, 5)
+    file.read(20)
+    ranking = read_int_with_fix_length(file, 2)
+    category_ranking = read_int_with_fix_length(file, 2)
+    sex_ranking = read_int_with_fix_length(file, 2)
+    skip(file, 2)
+    file.read(1)
+    organism = read_with_length(file)
+    skip(file, 3)
+    file.read(6)
+    read_with_length(file)
+    file.read(3)
+    read_with_length(file)
+    #file.read(1026)
+    eat_zero(file)
+    file.read(1) # Attention !! Différent en fonction des fichiers
+    eat_zero(file) # Attention !! Différent en fonction des fichiers
+    oriol = (organism.title() == "Oriol")
+    if runner_time != None and ranking != 0:
+        runner = Runner(last_name, first_name, sex, ranking, category, category_ranking, sex_ranking, bib_number, runner_time, oriol)
+        name = last_name + "_" + first_name
+        if name in runner_map:
+            runner.id = runner_map[name]
+            runner_repository.update(runner)
+        else:
+            runners_to_insert.append(runner)
+
+def skip(file, iteration):
+    for _ in range(iteration):
+        read_with_length(file)
+
+def eat_until(file, target):
+    join_target = b''.join(target)
+    new_target = bytearray(join_target)
+    buffer = bytearray(len(target))
+    while True:
+        byte = file.read(1)
+        if not byte:
+            break
+        buffer.pop(0)
+        buffer.append(byte[0])
+        if buffer == new_target:
+            break
+
+def eat_zero(file):
+    while True:
+        byte = file.read(1)
+        if not byte:
+            return -1
+        if byte != b'\x00':
+            file.seek(-1, 1)
+            break
+
+def read_int_with_fix_length(file, length):
+    value = 0
+    for compt in range(length):
+        value += eat_int_n(file, 1) * (16**(compt*2))
+    return value
+
+def read_with_length(file):
+    length = ord(file.read(1))
+    return eat_n(file, length)
+
+def eat_int_n(file, n):
+    value = ""
+    for _ in range(n):
+        byte = file.read(1)
+        if not byte:
+            return -1
+        value += str(ord(byte))
+    return int(value)
+
+def eat_n(file, n):
+    value = ""
+    for _ in range(n):
+        byte = file.read(1)
+        if not byte:
+            return -1
+        value += chr(ord(byte))
+    return value
+
+def find_hour(a, b, c, offsets):
+    if setting_repository.get_debug(): 
+        print(a, b, c)
+    if a==0 and b==0 and c==0:
+        return None
+    offset_a, offset_b, offset_c = offsets
+    if a==offset_a and b==offset_b and c==offset_c :
+        return None
+    heures = 0
+    minutes = 0
+    if a < offset_a:
+        secondes = 65536+a-offset_a
+    else:
+        secondes = a-offset_a
+    if b > offset_b:
+        secondes = secondes + 65536*(b-offset_b-1)
+    if c < offset_c:
+        milisecondes = 1000+c-offset_c
+        secondes = secondes - 1
+    else :
+        milisecondes = c-offset_c
+    while(secondes > 59):
+        secondes = secondes - 60
+        minutes = minutes + 1 
+    while(minutes > 59):
+        minutes = minutes - 60
+        heures = heures + 1
+    return(f'{heures:02}:{minutes:02}:{secondes:02}.{milisecondes:03}')
+
+def get_sex(value):
+    if value == 0:
+        return 'M'
+    return 'F'
+
+def get_category(value):
+    if value == 40:
+        return "J"
+    if value == 41:
+        return "S"
+    if value == 42:
+        return "35+"
+    if value == 43:
+        return "45+"
+    if value == 44:
+        return "55+"
+    return "65+"

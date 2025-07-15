@@ -1,0 +1,13 @@
+from dotenv import load_dotenv
+import os
+
+# Charge les variables d'environnement depuis le fichier .env
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '../.env'))
+
+DISCORD_GUILD_ID = int(os.getenv('DISCORD_GUILD_ID'))
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+CATEGORY_F = os.getenv('CATEGORY_F').split(",")
+CATEGORY_M = os.getenv('CATEGORY_M').split(",")
+PC_NAME = os.getenv("PC_NAME")
