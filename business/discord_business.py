@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from repositories.RunnerRepository import RunnerRepository
+from utils import word_generator, file_reader, category_init
 from repositories.SettingRepository import SettingRepository
-from utils import word_generator, file_reader
+from repositories.RunnerRepository import RunnerRepository
 from constants import messages, file_data
 from mail_sender import mail_service
 
-runner_repository = RunnerRepository()
 setting_repository = SettingRepository()
+runner_repository = RunnerRepository()
 
 async def mail(ctx):
     word_generator.create_word_file()
@@ -17,12 +17,13 @@ async def init(ctx):
     runner_repository.delete_all()
     setting_repository.set_runner_number(0)
     setting_repository.set_reward_number(0)
-    setting_repository.set_debug(0)
-    setting_repository.set_offset_a(0)
-    setting_repository.set_offset_b(0)
-    setting_repository.set_offset_c(0)
-    setting_repository.set_number_scratch_m(5)
-    setting_repository.set_number_scratch_f(3)
+    setting_repository.set_debug(0) #TODO : Ne pas forcer à l'init
+    setting_repository.set_offset_a(42932) #TODO : Ne pas forcer à l'init
+    setting_repository.set_offset_b(26301) #TODO : Ne pas forcer à l'init
+    setting_repository.set_offset_c(576) #TODO : Ne pas forcer à l'init
+    setting_repository.set_number_scratch_m(5) #TODO : Ne pas forcer à l'init
+    setting_repository.set_number_scratch_f(3) #TODO : Ne pas forcer à l'init
+    category_init.init_categories() #TODO : Ne pas forcer à l'init
     await ctx.send(messages.DB_INIT)
 
 async def test(ctx):

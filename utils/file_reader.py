@@ -1,7 +1,6 @@
 from repositories.RunnerRepository import RunnerRepository
 from repositories.SettingRepository import SettingRepository
 from models.Runner import Runner
-from config import config
 
 runner_repository = RunnerRepository()
 setting_repository = SettingRepository()
