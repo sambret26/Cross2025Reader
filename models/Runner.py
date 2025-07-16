@@ -31,6 +31,12 @@ class Runner(db.Model):
         self.time = time
         self.oriol = oriol
 
+    def get_time(self):
+        new_time = self.time.split('.')[0]
+        if new_time.startswith("00:"):
+            new_time = new_time[3:]
+        return new_time
+
     def to_json(self):
         return {
             "id": self.id,
@@ -41,6 +47,6 @@ class Runner(db.Model):
             "category_ranking": self.category_ranking,
             "sex_ranking": self.sex_ranking,
             "bib_number": self.bib_number,
-            "time": self.time,
+            "time": self.get_time(),
             "oriol": self.oriol
         }
