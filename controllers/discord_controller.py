@@ -20,6 +20,18 @@ async def init(ctx):
     await discord_business.init(ctx)
 
 @bot.command()
+async def init_all(ctx):
+    await discord_business.init_all(ctx)
+
+@bot.command()
+async def debug(ctx, arg: str = "on"):
+    await discord_business.debug(ctx, arg)
+
+@bot.command()
+async def offset(ctx, *args):
+    await discord_business.offset(ctx, args)
+
+@bot.command()
 async def test(ctx):
     await discord_business.test(ctx)
 
