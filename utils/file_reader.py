@@ -20,7 +20,7 @@ def read_file(filename):
         eat_zero(file)
         number = read_int_with_fix_length(file, 2)
         if number > 0:
-            setting_repository.set_runner_number(number)
+            setting_repository.set_runner_number(number) #TODO ne pas mettre à jour ici mais à la fin du traitement pour n'avoir que les non abandons
         for _ in range (number):
             read_runner(file, runner_map, runners_to_insert, offsets)
     runner_repository.insert_runners(runners_to_insert)
@@ -63,13 +63,17 @@ def read_runner(file, runner_map, runners_to_insert, offsets):
     eat_zero(file) # Attention !! Différent en fonction des fichiers
     oriol = (organism.title() == "Oriol")
     if runner_time != None and ranking != 0:
-        runner = Runner(last_name, first_name, sex, ranking, category, category_ranking, sex_ranking, bib_number, runner_time, oriol)
-        name = last_name + "_" + first_name
-        if name in runner_map:
-            runner.id = runner_map[name]
+        runner = Runner(last_name, first_name, sex, ranking, category, category_ranking, sex_ranking, bib_number, runner_time, oriol, True, False) #TODO Abandon
+    else:
+        runner = Runner(last_name, first_name, sex, 0, category, 0, 0, bib_number, "", oriol, False, False) #TODO Abandon
+    name = last_name + "_" + first_name
+    if name in runner_map:
+        runner_in_db = runner_map[name]
+        if(runner.is_different(runner_in_db)):
+            runner.id = runner_in_db.id
             runner_repository.update(runner)
-        else:
-            runners_to_insert.append(runner)
+    else:
+        runners_to_insert.append(runner)
 
 def skip(file, iteration):
     for _ in range(iteration):
@@ -126,7 +130,7 @@ def eat_n(file, n):
     return value
 
 def find_hour(a, b, c, offsets):
-    if setting_repository.get_debug(): 
+    if setting_repository.get_debug(): #TODO perf lecture à chaque itération
         print(a, b, c)
     if a==0 and b==0 and c==0:
         return None
