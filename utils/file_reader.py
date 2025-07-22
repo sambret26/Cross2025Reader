@@ -19,10 +19,10 @@ async def read_file(bot, filename):
         eat_until(file, [b'\x00']*100)
         eat_zero(file)
         number = read_int_with_fix_length(file, 2)
-        if number > 0:
-            setting_repository.set_runner_number(number) #TODO ne pas mettre à jour ici mais à la fin du traitement pour n'avoir que les non abandons
+        runners_number = 0
         for i in range (number):
-            await read_runner(bot, file, runner_map, runners_to_insert, offsets, i)
+            runners_number += await read_runner(bot, file, runner_map, runners_to_insert, offsets, i)
+        setting_repository.set_runner_number(runners_number)
     runner_repository.insert_runners(runners_to_insert)
 
 async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
@@ -34,38 +34,42 @@ async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
     file.read(2)
     category = get_category(eat_int_n(file, 1))
     file.read(1)
-    read_with_length(file)
+    read_with_length(file) # Licence
     read_int_with_fix_length(file, 2)
-    skip(file, 4)
+    skip(file, 4) # Adresse / complément / code / ville
     a = read_int_with_fix_length(file, 2)
     b = read_int_with_fix_length(file, 2)
     c = read_int_with_fix_length(file, 2)
     runner_time = await find_hour(bot, a, b, c, offsets, i)
-    file.read(66)
+    file.read(66) # Le 9i : inverse de authorisation diffusion
     skip(file, 2)
     file.read(8)
-    skip(file, 5)
-    file.read(20)
+    skip(file, 5) # Etat / Pays / tel / palmares / ?
+    file.read(2) # Certificat médical / Partant
+    disqualified = eat_int_n(file, 1)
+    give_up = eat_int_n(file, 1)
+    file.read(16)
     ranking = read_int_with_fix_length(file, 2)
     category_ranking = read_int_with_fix_length(file, 2)
     sex_ranking = read_int_with_fix_length(file, 2)
-    skip(file, 2)
-    file.read(1)
+    skip(file, 2) # Club / Course
+    file.read(1) # Demande d'envoie des classements
     organism = read_with_length(file)
-    skip(file, 3)
-    file.read(6)
-    read_with_length(file)
+    skip(file, 3) # sponsor / mail / Pass comp
+    file.read(6) # 4*?  / Cotisation payée / Invité
+    read_with_length(file) # Nationalité
     file.read(3)
-    read_with_length(file)
+    read_with_length(file) # Identifiant GM-CAP
     #file.read(1026)
     eat_zero(file)
     file.read(1) # Attention !! Différent en fonction des fichiers
     eat_zero(file) # Attention !! Différent en fonction des fichiers
     oriol = (organism.title() == "Oriol")
+    out = give_up == 1 or disqualified == 1
     if runner_time != None and ranking != 0:
-        runner = Runner(last_name, first_name, sex, ranking, category, category_ranking, sex_ranking, bib_number, runner_time, oriol, True, False) #TODO Abandon
+        runner = Runner(last_name, first_name, sex, ranking, category, category_ranking, sex_ranking, bib_number, runner_time, oriol, True, out )
     else:
-        runner = Runner(last_name, first_name, sex, 0, category, 0, 0, bib_number, "", oriol, False, False) #TODO Abandon
+        runner = Runner(last_name, first_name, sex, 0, category, 0, 0, bib_number, "", oriol, False, out)
     name = last_name + "_" + first_name
     if name in runner_map:
         runner_in_db = runner_map[name]
@@ -74,6 +78,7 @@ async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
             runner_repository.update(runner)
     else:
         runners_to_insert.append(runner)
+    return 1-out
 
 def skip(file, iteration):
     for _ in range(iteration):
