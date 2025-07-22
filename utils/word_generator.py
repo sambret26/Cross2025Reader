@@ -5,11 +5,12 @@ import os
 
 from repositories.RunnerRepository import RunnerRepository
 from repositories.SettingRepository import SettingRepository
-from config import config
+from repositories.CategoryRepository import CategoryRepository
 from constants import file_data
 
 runner_repository = RunnerRepository()
 setting_repository = SettingRepository()
+category_repository = CategoryRepository()
 
 def create_word_file():
     old_text_list = []
@@ -61,10 +62,10 @@ def get_rewards():
     rewards = []
     get_rewards_in_scratch(rewards, 'M', number_scratch_m)
     get_rewards_in_scratch(rewards, 'F', number_scratch_f)
-    for category in config.CATEGORY_F:
-        get_rewards_in_category(rewards, category, 'F', number_scratch_f)
-    for category in config.CATEGORY_M:
-        get_rewards_in_category(rewards, category, 'M', number_scratch_m)
+    for category in category_repository.get_by_sex('F'):
+        get_rewards_in_category(rewards, category.category, 'F', number_scratch_f)
+    for category in category_repository.get_by_sex('M'):
+        get_rewards_in_category(rewards, category.category, 'M', number_scratch_m)
     bib_number_rewarded = [reward.bib_number for reward in rewards]
     runner = runner_repository.get_first_oriol(bib_number_rewarded, 'F')
     add_runner_in_rewards(rewards, runner, "O", 'F')
@@ -84,7 +85,7 @@ def get_rewards_in_category(rewards, category, sex, skip):
 
 def add_runner_in_rewards(rewards, runner, category, sex):
     if runner:
-        reward = Reward(category, sex, runner.ranking, runner.last_name, runner.first_name, runner.bib_number, runner.time)
+        reward = Reward(category, sex, runner.ranking, runner.last_name, runner.first_name, runner.bib_number, runner.get_time())
     else:
         reward = Reward(category, sex)
     rewards.append(reward)

@@ -8,6 +8,10 @@ class CategoryRepository:
     def get_all():
         return Category.query.order_by(Category.order).all()
 
+    @staticmethod
+    def get_by_sex(sex):
+        return Category.query.filter_by(sex=sex).order_by(Category.order).all()
+
     #INSERT
     @staticmethod
     def insert_categories(categories):
