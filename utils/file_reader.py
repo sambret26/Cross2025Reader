@@ -11,7 +11,7 @@ def get_offset():
     offset_c = setting_repository.get_offset_c()
     return (offset_a, offset_b, offset_c)
 
-def read_file(filename):
+async def read_file(bot, filename):
     runner_map = runner_repository.get_runner_map()
     runners_to_insert = []
     offsets = get_offset()
@@ -21,11 +21,11 @@ def read_file(filename):
         number = read_int_with_fix_length(file, 2)
         if number > 0:
             setting_repository.set_runner_number(number) #TODO ne pas mettre à jour ici mais à la fin du traitement pour n'avoir que les non abandons
-        for _ in range (number):
-            read_runner(file, runner_map, runners_to_insert, offsets)
+        for i in range (number):
+            await read_runner(bot, file, runner_map, runners_to_insert, offsets, i)
     runner_repository.insert_runners(runners_to_insert)
 
-def read_runner(file, runner_map, runners_to_insert, offsets):
+async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
     last_name = read_with_length(file).upper()
     first_name = read_with_length(file).title()
     sex = get_sex(eat_int_n(file, 1))
@@ -40,7 +40,7 @@ def read_runner(file, runner_map, runners_to_insert, offsets):
     a = read_int_with_fix_length(file, 2)
     b = read_int_with_fix_length(file, 2)
     c = read_int_with_fix_length(file, 2)
-    runner_time = find_hour(a, b, c, offsets)
+    runner_time = await find_hour(bot, a, b, c, offsets, i)
     file.read(66)
     skip(file, 2)
     file.read(8)
@@ -129,9 +129,10 @@ def eat_n(file, n):
         value += chr(ord(byte))
     return value
 
-def find_hour(a, b, c, offsets):
-    if setting_repository.get_debug(): #TODO perf lecture à chaque itération
-        print(a, b, c)
+async def find_hour(bot, a, b, c, offsets, i):
+    if i==1 and setting_repository.get_debug():
+        channel = bot.get_channel(setting_repository.get_debug_channel())
+        await channel.send("Debug : " + str(a) + " " + str(b) + " " + str(c))
     if a==0 and b==0 and c==0:
         return None
     offset_a, offset_b, offset_c = offsets

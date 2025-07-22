@@ -29,6 +29,7 @@ async def init_all(ctx):
     setting_repository.set_offset_c(576)
     setting_repository.set_number_scratch_m(5)
     setting_repository.set_number_scratch_f(3)
+    setting_repository.set_debug_channel(1361128278189936800)
     category_init.init_categories()
     await ctx.send(messages.DB_INIT_ALL)
 
@@ -74,7 +75,7 @@ async def import_file(bot, message):
         await message.channel.send(messages.UNKNOWN_EXTENSION)
         return
     await message.attachments[0].save(file_data.GMCAP_FILENAME)
-    file_reader.read_file(file_data.GMCAP_FILENAME)
+    await file_reader.read_file(bot, file_data.GMCAP_FILENAME)
     await message.channel.send(messages.FILE_TREATED)
     #TODO : Update result message (bot)
         

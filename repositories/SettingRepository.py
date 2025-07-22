@@ -44,6 +44,11 @@ class SettingRepository:
         setting = Setting.query.filter(Setting.data=="number_scratch_f").first()
         return setting.state if setting else None
 
+    @staticmethod
+    def get_debug_channel():
+        setting = Setting.query.filter(Setting.data=="debug_channel").first()
+        return setting.state if setting else None
+
     # SETTERS
     @staticmethod
     def set_runner_number(number):
@@ -122,5 +127,15 @@ class SettingRepository:
             setting.state = number
         else:
             setting = Setting("number_scratch_f", number)
+        db.session.add(setting)
+        db.session.commit()
+
+    @staticmethod
+    def set_debug_channel(value):
+        setting = Setting.query.filter(Setting.data=="debug_channel").first()
+        if setting:
+            setting.state = value
+        else:
+            setting = Setting("debug_channel", value)
         db.session.add(setting)
         db.session.commit()
