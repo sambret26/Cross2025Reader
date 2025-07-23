@@ -19,10 +19,8 @@ async def read_file(bot, filename):
         eat_until(file, [b'\x00']*100)
         eat_zero(file)
         number = read_int_with_fix_length(file, 2)
-        runners_number = 0
         for i in range (number):
-            runners_number += await read_runner(bot, file, runner_map, runners_to_insert, offsets, i)
-        setting_repository.set_runner_number(runners_number)
+            await read_runner(bot, file, runner_map, runners_to_insert, offsets, i)
     runner_repository.insert_runners(runners_to_insert)
 
 async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
@@ -78,7 +76,6 @@ async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
             runner_repository.update(runner)
     else:
         runners_to_insert.append(runner)
-    return 1-out
 
 def skip(file, iteration):
     for _ in range(iteration):

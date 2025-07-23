@@ -5,16 +5,6 @@ class SettingRepository:
 
     # GETTERS
     @staticmethod
-    def get_runner_number():
-        setting = Setting.query.filter(Setting.data=="runner_number").first()
-        return setting.state if setting else None
-
-    @staticmethod
-    def get_reward_number():
-        setting = Setting.query.filter(Setting.data=="reward_number").first()
-        return setting.state if setting else None
-
-    @staticmethod
     def get_debug():
         setting = Setting.query.filter(Setting.data=="debug").first()
         return setting.state if setting else None
@@ -50,26 +40,6 @@ class SettingRepository:
         return setting.state if setting else None
 
     # SETTERS
-    @staticmethod
-    def set_runner_number(number):
-        setting = Setting.query.filter(Setting.data=="runner_number").first()
-        if setting:
-            setting.state = number
-        else:
-            setting = Setting("runner_number", number)
-        db.session.add(setting)
-        db.session.commit()
-
-    @staticmethod
-    def set_reward_number(number):
-        setting = Setting.query.filter(Setting.data=="reward_number").first()
-        if setting:
-            setting.state = number
-        else:
-            setting = Setting("reward_number", number)
-        db.session.add(setting)
-        db.session.commit()
-
     @staticmethod
     def set_debug(number):
         setting = Setting.query.filter(Setting.data=="debug").first()

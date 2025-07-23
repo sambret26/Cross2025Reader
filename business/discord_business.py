@@ -15,16 +15,12 @@ async def mail(ctx):
     mail_service.send_mail()
     await ctx.send(messages.MAIL_SEND)
 
+async def delete(ctx):
+    runner_repository.delete_all()
+    await ctx.send(messages.DB_DELETE)
+
 async def init(ctx):
     runner_repository.delete_all()
-    setting_repository.set_runner_number(0)
-    setting_repository.set_reward_number(0)
-    await ctx.send(messages.DB_INIT)
-
-async def init_all(ctx):
-    runner_repository.delete_all()
-    setting_repository.set_runner_number(0)
-    setting_repository.set_reward_number(0)
     setting_repository.set_debug(0)
     setting_repository.set_offset_a(42932)
     setting_repository.set_offset_b(26301)
@@ -33,7 +29,7 @@ async def init_all(ctx):
     setting_repository.set_number_scratch_f(3)
     setting_repository.set_debug_channel(1361128278189936800)
     category_init.init_categories()
-    await ctx.send(messages.DB_INIT_ALL)
+    await ctx.send(messages.DB_INIT)
 
 async def debug(ctx, arg):
     if arg.lower() in ["on", "1"]:
@@ -70,6 +66,9 @@ async def test(ctx):
 
 async def clear(ctx, nombre):
     await ctx.channel.purge(limit=nombre+1, check=lambda msg: not msg.pinned)
+
+async def cmd(ctx):
+    await ctx.send(messages.CMD)
 
 async def import_file(bot, message):
     file = await message.attachments[0].to_file()

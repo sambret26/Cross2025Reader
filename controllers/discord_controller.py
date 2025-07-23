@@ -16,12 +16,12 @@ async def mail(ctx):
     await discord_business.mail(ctx)
 
 @bot.command()
-async def init(ctx):
-    await discord_business.init(ctx)
+async def delete(ctx):
+    await discord_business.delete(ctx)
 
 @bot.command()
-async def init_all(ctx):
-    await discord_business.init_all(ctx)
+async def init(ctx):
+    await discord_business.init(ctx)
 
 @bot.command()
 async def debug(ctx, arg: str = "on"):
@@ -38,6 +38,10 @@ async def test(ctx):
 @bot.command()
 async def clear(ctx, nombre: int = 100):
     await discord_business.clear(ctx, nombre)
+
+@bot.command()
+async def cmd(ctx):
+    await discord_business.cmd(ctx)
 
 @bot.event
 async def on_message(message):
