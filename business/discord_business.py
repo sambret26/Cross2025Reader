@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from utils import word_generator, file_reader, category_init
+import time
+
+from utils import word_generator, file_reader, category_init, rewards
 from repositories.SettingRepository import SettingRepository
 from repositories.RunnerRepository import RunnerRepository
 from constants import messages, file_data
@@ -75,7 +77,10 @@ async def import_file(bot, message):
         await message.channel.send(messages.UNKNOWN_EXTENSION)
         return
     await message.attachments[0].save(file_data.GMCAP_FILENAME)
+    start = time.time()
     await file_reader.read_file(bot, file_data.GMCAP_FILENAME)
-    await message.channel.send(messages.FILE_TREATED)
-    #TODO : Update result message (bot)
+    end = time.time()
+    duration = round(end - start, 2)
+    await message.channel.send(messages.FILE_TREATED + " en " + str(duration) + " secondes")
+    rewards.update_rewards()
         
