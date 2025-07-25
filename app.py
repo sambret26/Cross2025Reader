@@ -4,6 +4,7 @@ import threading
 
 from controllers.category_controller import category_bp
 from controllers.runner_controller import runner_bp
+from controllers.comment_controller import comment_bp
 from controllers import discord_controller
 
 from config.Dbconfig import Dbconfig
@@ -17,6 +18,7 @@ db.init_app(app)
 
 app.register_blueprint(category_bp)
 app.register_blueprint(runner_bp)
+app.register_blueprint(comment_bp)
 
 def run_discord_bot():
     with app.app_context():
