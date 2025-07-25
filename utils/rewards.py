@@ -22,25 +22,25 @@ def get_rewards_in_db():
     for category in category_repository.get_by_sex('M'):
         get_rewards_in_category(rewards, category.category, 'M', number_scratch_m)
     ids_rewarded = [reward.id for reward in rewards]
-    id = runner_repository.get_first_oriol(ids_rewarded, 'F')
-    add_runner_in_rewards(rewards, id, "O", 'F')
-    id = runner_repository.get_first_oriol(ids_rewarded, 'M')
-    add_runner_in_rewards(rewards, id, "O", 'M')
+    oriol_id_f = runner_repository.get_first_oriol(ids_rewarded, 'F')
+    add_runner_in_rewards(rewards, oriol_id_f, "O", 'F')
+    oriol_id_m = runner_repository.get_first_oriol(ids_rewarded, 'M')
+    add_runner_in_rewards(rewards, oriol_id_m, "O", 'M')
     return rewards
 
 def get_rewards_in_scratch(rewards, sex, number):
     for i in range(1, number+1):
         category = "S" + str(i)
-        id = runner_repository.get_reward_in_scratch(i, sex)
-        add_runner_in_rewards(rewards, id, category, sex)
+        runner_id = runner_repository.get_reward_in_scratch(i, sex)
+        add_runner_in_rewards(rewards, runner_id, category, sex)
 
 def get_rewards_in_category(rewards, category, sex, skip):
-    id = runner_repository.get_reward_in_category(category, sex, skip)
-    add_runner_in_rewards(rewards, id, category, sex)
+    runner_id = runner_repository.get_reward_in_category(category, sex, skip)
+    add_runner_in_rewards(rewards, runner_id, category, sex)
 
-def add_runner_in_rewards(rewards, id, category, sex):
-    if id:
-        reward = RewardInBase(category, sex, id)
+def add_runner_in_rewards(rewards, runner_id, category, sex):
+    if runner_id:
+        reward = RewardInBase(category, sex, runner_id)
     else:
         reward = RewardInBase(category, sex, None)
     rewards.append(reward)

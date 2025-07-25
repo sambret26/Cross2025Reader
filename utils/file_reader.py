@@ -1,3 +1,6 @@
+from io import BytesIO
+import aiofiles
+
 from repositories.RunnerRepository import RunnerRepository
 from repositories.SettingRepository import SettingRepository
 from models.Runner import Runner
@@ -15,11 +18,15 @@ async def read_file(bot, filename):
     runner_map = runner_repository.get_runner_map()
     runners_to_insert = []
     offsets = get_offset()
-    with open(filename, 'rb') as file:
+
+    async with aiofiles.open(filename, 'rb') as f:
+        content = await f.read()
+
+    with BytesIO(content) as file:
         eat_until(file, [b'\x00']*100)
         eat_zero(file)
         number = read_int_with_fix_length(file, 2)
-        for i in range (number):
+        for i in range(number):
             await read_runner(bot, file, runner_map, runners_to_insert, offsets, i)
     runner_repository.insert_runners(runners_to_insert)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import time
 
 from utils import word_generator, file_reader, category_init, rewards
