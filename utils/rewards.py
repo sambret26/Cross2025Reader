@@ -21,7 +21,7 @@ def get_rewards_in_db():
         get_rewards_in_category(rewards, category.category, 'F', number_scratch_f)
     for category in category_repository.get_by_sex('M'):
         get_rewards_in_category(rewards, category.category, 'M', number_scratch_m)
-    ids_rewarded = [reward.id for reward in rewards]
+    ids_rewarded = [reward.id for reward in rewards if reward.id is not None]
     oriol_id_f = runner_repository.get_first_oriol(ids_rewarded, 'F')
     add_runner_in_rewards(rewards, oriol_id_f, "O", 'F')
     oriol_id_m = runner_repository.get_first_oriol(ids_rewarded, 'M')
