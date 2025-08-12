@@ -30,6 +30,10 @@ async def offset(ctx, *args):
     await discord_business.offset(ctx, args)
 
 @bot.command()
+async def setmail(ctx, arg: str = "on"):
+    await discord_business.setmail(ctx, arg)
+
+@bot.command()
 async def test(ctx):
     await discord_business.test(ctx)
 

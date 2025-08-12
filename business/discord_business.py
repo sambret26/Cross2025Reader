@@ -27,6 +27,7 @@ async def init(ctx):
     setting_repository.set_number_scratch_m(5)
     setting_repository.set_number_scratch_f(3)
     setting_repository.set_debug_channel(1361128278189936800)
+    setting_repository.set_mail_sended(0)
     category_init.init_categories()
     await ctx.send(messages.DB_INIT)
 
@@ -59,6 +60,16 @@ async def offset(ctx, args):
         .replace("O_B", str(offset_b))
         .replace("O_C", str(offset_c))
     )
+
+async def setmail(ctx, arg):
+    if arg.lower() in ["on", "1"]:
+        setting_repository.set_mail_sended(1)
+        await ctx.send(messages.MAIL_ON)
+    elif arg.lower() in ["off", "0"]:
+        setting_repository.set_mail_sended(0)
+        await ctx.send(messages.MAIL_OFF)
+    else:
+        await ctx.send(messages.MAIL_KO)
 
 async def test(ctx):
     await ctx.send(messages.OK)

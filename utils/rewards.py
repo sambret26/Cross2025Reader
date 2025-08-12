@@ -1,7 +1,8 @@
 from repositories.SettingRepository import SettingRepository
 from repositories.RunnerRepository import RunnerRepository
 from repositories.CategoryRepository import CategoryRepository
-
+from mail_sender import mail_service
+from utils import word_generator
 setting_repository = SettingRepository()
 runner_repository = RunnerRepository()
 category_repository = CategoryRepository()
@@ -26,6 +27,12 @@ def get_rewards_in_db():
     add_runner_in_rewards(rewards, oriol_id_f, "O", 'F')
     oriol_id_m = runner_repository.get_first_oriol(ids_rewarded, 'M')
     add_runner_in_rewards(rewards, oriol_id_m, "O", 'M')
+    if not None in [reward.id for reward in rewards] and \
+        oriol_id_f is not None and oriol_id_m is not None \
+            and setting_repository.get_mail_sended() == 0:
+        word_generator.create_word_file()
+        mail_service.send_mail()
+        setting_repository.set_mail_sended(1)
     return rewards
 
 def get_rewards_in_scratch(rewards, sex, number):

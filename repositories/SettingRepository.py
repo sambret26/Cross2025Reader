@@ -38,6 +38,11 @@ class SettingRepository:
     def get_debug_channel():
         setting = Setting.query.filter(Setting.data=="debug_channel").first()
         return setting.state if setting else None
+    
+    @staticmethod
+    def get_mail_sended():
+        setting = Setting.query.filter(Setting.data=="mail_sended").first()
+        return setting.state if setting else None
 
     # SETTERS
     @staticmethod
@@ -107,5 +112,15 @@ class SettingRepository:
             setting.state = value
         else:
             setting = Setting("debug_channel", value)
+        db.session.add(setting)
+        db.session.commit()
+
+    @staticmethod
+    def set_mail_sended(number):
+        setting = Setting.query.filter(Setting.data=="mail_sended").first()
+        if setting:
+            setting.state = number
+        else:
+            setting = Setting("mail_sended", number)
         db.session.add(setting)
         db.session.commit()
