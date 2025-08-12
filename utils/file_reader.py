@@ -26,11 +26,12 @@ async def read_file(bot, filename):
         eat_until(file, [b'\x00']*100)
         eat_zero(file)
         number = read_int_with_fix_length(file, 2)
-        for i in range(number):
-            await read_runner(bot, file, runner_map, runners_to_insert, offsets, i)
+        already_debugged = False
+        for _ in range(number):
+            already_debugged = await read_runner(bot, file, runner_map, runners_to_insert, offsets, already_debugged)
     runner_repository.insert_runners(runners_to_insert)
 
-async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
+async def read_runner(bot, file, runner_map, runners_to_insert, offsets, already_debugged):
     last_name = read_with_length(file).upper()
     first_name = read_with_length(file).title()
     sex = get_sex(eat_int_n(file, 1))
@@ -45,7 +46,9 @@ async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
     a = read_int_with_fix_length(file, 2)
     b = read_int_with_fix_length(file, 2)
     c = read_int_with_fix_length(file, 2)
-    runner_time = await find_hour(bot, a, b, c, offsets, i)
+    runner_time = await find_hour(bot, a, b, c, offsets, already_debugged)
+    if runner_time:
+        already_debugged = True
     file.read(66) # Le 9i : inverse de authorisation diffusion
     skip(file, 2)
     file.read(8)
@@ -83,6 +86,7 @@ async def read_runner(bot, file, runner_map, runners_to_insert, offsets, i):
             runner_repository.update(runner)
     else:
         runners_to_insert.append(runner)
+    return already_debugged
 
 def skip(file, iteration):
     for _ in range(iteration):
@@ -138,15 +142,16 @@ def eat_n(file, n):
         value += chr(ord(byte))
     return value
 
-async def find_hour(bot, a, b, c, offsets, i):
-    if i==1 and setting_repository.get_debug():
-        channel = bot.get_channel(setting_repository.get_debug_channel())
-        await channel.send("Debug : " + str(a) + " " + str(b) + " " + str(c))
+async def find_hour(bot, a, b, c, offsets, already_debugged):
     if a==0 and b==0 and c==0:
         return None
     offset_a, offset_b, offset_c = offsets
     if a==offset_a and b==offset_b and c==offset_c :
         return None
+    if not already_debugged and setting_repository.get_debug():
+        channel = bot.get_channel(setting_repository.get_debug_channel())
+        await channel.send("Debug : " + str(a) + " " + str(b) + " " + str(c))
+        already_debugged = True
     heures = 0
     minutes = 0
     if a < offset_a:
