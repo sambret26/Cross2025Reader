@@ -22,8 +22,3 @@ def create_comment():
             current_app.logger.error("Échec de l'envoi du commentaire vers Discord")
     
     return jsonify({"message": "Commentaire reçu avec succès"}), 201
-
-@comment_bp.route("/rewards", methods=["GET"])
-def get_rewards():
-    rewards = category_business.get_rewards()
-    return jsonify([reward.__dict__ for reward in rewards])

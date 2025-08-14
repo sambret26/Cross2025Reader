@@ -34,6 +34,10 @@ async def setmail(ctx, arg: str = "on"):
     await discord_business.setmail(ctx, arg)
 
 @bot.command()
+async def started(ctx, arg: str = "on"):
+    await discord_business.started(ctx, arg)
+
+@bot.command()
 async def test(ctx):
     await discord_business.test(ctx)
 

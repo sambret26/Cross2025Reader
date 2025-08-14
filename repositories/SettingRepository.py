@@ -44,6 +44,11 @@ class SettingRepository:
         setting = Setting.query.filter(Setting.data=="mail_sended").first()
         return setting.state if setting else None
 
+    @staticmethod
+    def get_started():
+        setting = Setting.query.filter(Setting.data=="started").first()
+        return setting.state if setting else None
+
     # SETTERS
     @staticmethod
     def set_debug(number):
@@ -122,5 +127,15 @@ class SettingRepository:
             setting.state = number
         else:
             setting = Setting("mail_sended", number)
+        db.session.add(setting)
+        db.session.commit()
+
+    @staticmethod
+    def set_started(state):
+        setting = Setting.query.filter(Setting.data=="started").first()
+        if setting:
+            setting.state = state
+        else:
+            setting = Setting("started", state)
         db.session.add(setting)
         db.session.commit()
